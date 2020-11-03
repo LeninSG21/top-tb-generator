@@ -1,9 +1,10 @@
 module pc_control (
-   input  clk,
-   input  rst,
+   input  clk, rst,
    input [31:0] in_pc,
-   output [31:0] out_pc
+   output reg [31:0] out_pc
 );
+
+output zero;
 
 always @(posedge clk or posedge rst)
   begin
