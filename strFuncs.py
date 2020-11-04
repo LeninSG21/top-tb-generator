@@ -1,5 +1,6 @@
 # var_struct --> (name, size, type, funcType)
 
+
 def generateInputTb(input_dicc, inout_dicc):
     s = ""
     for i in input_dicc.values():
@@ -17,8 +18,25 @@ def generateOutputTb(output_dicc):
 
 
 def generateTbStr(input_dicc):
+    s = ""
 
-    # This function creates the Verilog testbench template with module and inputs/outputs names.
+    for varTuple in input_dicc.values():
+        # [4:0]
+        busSize = int(varTuple[1].split(":")[0][1:]) + \
+            1 if varTuple[1].strip() != "" else 1
+        print(busSize)
+        '''
+        if varTuple[3] == 'random':
+            generateRandom()
+            random.randint()
+           
+        elif varTuple[3] == 'up':
+            generateAscending()
+        elif varTuple[3] == 'down': 
+            generateDescendign()
+            '''
+
+# This function creates the Verilog testbench template with module and inputs/outputs names.
 
 
 def getTBString(moduleName, regStr, wireStr, hasClk, hasRst):

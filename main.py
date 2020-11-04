@@ -2,6 +2,7 @@ import sys
 import re
 from strFuncs import *
 from displayMenu import *
+from random import randint
 # Variables y regex globales
 re_module_name = r'module\s+([_a-zA-Z]\w*)'
 
