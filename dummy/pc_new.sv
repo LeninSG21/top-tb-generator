@@ -4,7 +4,7 @@ module pc_control (
    output reg [31:0] out_pc
 );
 
-input [4:0] Selector;
+output zero;
 
 always @(posedge clk or posedge rst)
   begin
