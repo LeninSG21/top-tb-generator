@@ -16,7 +16,11 @@ def generateOutputTb(output_dicc):
     return s
 
 
-# This function creates the Verilog testbench template with module and inputs/outputs names.
+def generateTbStr(input_dicc):
+
+    # This function creates the Verilog testbench template with module and inputs/outputs names.
+
+
 def getTBString(moduleName, regStr, wireStr, hasClk, hasRst):
 
     rstInit = """rst = 1;

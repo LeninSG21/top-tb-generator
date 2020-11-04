@@ -7,9 +7,9 @@ module pc_control_tb;
     	reg  clk;
 	reg  rst;
 	reg [31:0] in_pc;
+	reg [4:0] Selector;
 
     	wire [31:0] out_pc;
-	wire  zero;
 
     //Instanciar el top
     pc_control UUT(.*);
@@ -35,11 +35,5 @@ initial
  always forever #1 clk = ~clk;
   
   
-endmodule
-      
-endmodule
-      
-endmodule
-      
 endmodule
     

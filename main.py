@@ -1,7 +1,7 @@
 import sys
 import re
 from strFuncs import *
-import displayMenu
+from displayMenu import *
 # Variables y regex globales
 re_module_name = r'module\s+([_a-zA-Z]\w*)'
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         for var in varList:  # Iterate over the variables list
 
             # Create the tuple to save the variable info
-            varTuple = (var.strip(), m[3].strip(), m[2], '')
+            varTuple = [var.strip(), m[3].strip(), m[2], '']
             if not hasClk:
                 hasClk = varTuple[0] == 'clk'
             if not hasRst:
@@ -74,16 +74,18 @@ if __name__ == "__main__":
             # Save the tuple in the appropriate dictionary
             if(m[0] == "input"):
                 if varTuple[0] != 'clk' and varTuple[0] != 'rst':
-                    displayMenu(varTuple)
+                    varTuple[3] = displayMenu(varTuple)
                 input_dicc[varTuple[0]] = varTuple
             elif(m[0] == "output"):
                 output_dicc[varTuple[0]] = varTuple
             else:  # inout
                 inout_dicc[varTuple[0]] = varTuple
 
+    print(input_dicc)
     # Generate variable delcarations in SystemVerilog format
     regStr = generateInputTb(input_dicc, inout_dicc)
     wireStr = generateOutputTb(output_dicc)
+    tbStr = generateTbStr(input_dicc)
 
     # Open the test bench file in utf8 encoding
     tbName = filename[0:len(filename)-3]+"_tb.sv"
