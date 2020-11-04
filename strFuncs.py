@@ -1,4 +1,5 @@
 # var_struct --> (name, size, type, funcType)
+from random import randint
 
 
 def generateInputTb(input_dicc, inout_dicc):
@@ -16,35 +17,50 @@ def generateOutputTb(output_dicc):
         s += "\twire %s %s;\n" % (o[1], o[0])
     return s
 
+# Generates stimulus values for inputs to simulates
 
-def generateTbStr(input_dicc):
-    s = ""
 
+def generateMainSequence(input_dicc):
+    s = "\t\tfor(integer i = 0; i < 10; i++) begin\n\t\t\t#2"
     for varTuple in input_dicc.values():
-        # [4:0]
-        busSize = int(varTuple[1].split(":")[0][1:]) + \
-            1 if varTuple[1].strip() != "" else 1
-        print(busSize)
-        '''
-        if varTuple[3] == 'random':
-            generateRandom()
-            random.randint()
-           
-        elif varTuple[3] == 'up':
-            generateAscending()
-        elif varTuple[3] == 'down': 
-            generateDescendign()
-            '''
+        if varTuple[0] != 'clk' and varTuple[0] != 'rst':
+            # busSize = int(varTuple[1].split(":")[0][1:]) + \
+            #     1 if varTuple[1].strip() != "" else 1
+            if varTuple[3] == 'random':
+                s += f"\n\t\t\t{varTuple[0]} = $urandom();"
+            elif varTuple[3] == 'up':
+                s += f"\n\t\t\t{varTuple[0]} = i;"
+            elif varTuple[3] == "down":
+                s += f"\n\t\t\t{varTuple[0]} = 10-i;"
+    s += "\n\t\tend"
+    return s
+
+
+def variableInit(input_dicc):
+    s = ""
+    for varTuple in input_dicc.values():
+        if varTuple[0] != 'clk' and varTuple[0] != 'rst':
+            s += f"\n\t\t{varTuple[0]} = 0;"
+        # if varTuple[0] != 'clk' and varTuple[0] != 'rst':
+        #     busSize = int(varTuple[1].split(":")[0][1:]) + \
+        #         1 if varTuple[1].strip() != "" else 1
+        #     if varTuple[3] == 'random':
+        #         s += generateRandom(busSize, varTuple[0])
+            # elif varTuple[3] == 'up':
+            #     s+=generateAscending()
+            # elif varTuple[3] == 'down':
+            #     s+=generateDescendign()
+    return s
 
 # This function creates the Verilog testbench template with module and inputs/outputs names.
 
 
-def getTBString(moduleName, regStr, wireStr, hasClk, hasRst):
+def getTBString(moduleName, regStr, wireStr, hasClk, hasRst, varInit, mainSequence):
 
     rstInit = """rst = 1;
+
     # 3
-    rst = 0
-    """
+    rst = 0"""
 
     return f"""
 `timescale 1ns/1ps
@@ -52,8 +68,8 @@ def getTBString(moduleName, regStr, wireStr, hasClk, hasRst):
 module {moduleName}_tb;
 
     //Creación de regs y wires
-    {regStr}
-    {wireStr}
+{regStr}
+{wireStr}
     //Instanciar el top
     {moduleName} UUT(.*);
 
@@ -61,13 +77,12 @@ initial
   begin
     $dumpfile("{moduleName}_tb.vcd");
     $dumpvars (0, {moduleName}_tb);
-
+{varInit}
     {"clk = 0;" if hasClk else ""}
     {rstInit if hasRst else ""}
-    
-    //Qué va a pasar aquí
 
-    #3
+{mainSequence}
+    #4
 	$finish;
  	 
    end

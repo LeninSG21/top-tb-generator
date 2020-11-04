@@ -1,3 +1,4 @@
+
 import sys
 import re
 from strFuncs import *
@@ -82,17 +83,18 @@ if __name__ == "__main__":
             else:  # inout
                 inout_dicc[varTuple[0]] = varTuple
 
-    print(input_dicc)
     # Generate variable delcarations in SystemVerilog format
     regStr = generateInputTb(input_dicc, inout_dicc)
     wireStr = generateOutputTb(output_dicc)
-    tbStr = generateTbStr(input_dicc)
+    varInit = variableInit(input_dicc)
+    mainSequence = generateMainSequence(input_dicc)
 
     # Open the test bench file in utf8 encoding
     tbName = filename[0:len(filename)-3]+"_tb.sv"
     tb = open(tbName, 'w', encoding='utf8')
     # Write the file with the string formatted appropriately
-    tb.write(getTBString(moduleName, regStr, wireStr, hasClk, hasRst))
+    tb.write(getTBString(moduleName, regStr,
+                         wireStr, hasClk, hasRst, varInit, mainSequence))
     # Close the file
     tb.close()
     print("Done")
