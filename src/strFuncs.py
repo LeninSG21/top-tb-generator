@@ -18,7 +18,7 @@ def generateOutputTb(output_dicc):
         s += "\twire %s %s;\n" % (o[1], o[0])
     return s
 
-# Generates stimulus values for inputs to simulates
+# Generates stimulus values for inputs to simulate
 
 
 def generateMainSequence(input_dicc, forIt):

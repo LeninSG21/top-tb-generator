@@ -1,10 +1,11 @@
-
+# Function to generate stimulus based on User-defined iterator, by default generates up to 10 stimulus
 def selectForIterations():
     forIt = input("\nInput loop for iterations (default 10): ")
 
     return int(forIt) if forIt.isnumeric() else 10
 
 
+# Function to display a menu to the user and select what kind of smtimulus wants to generate
 def displayMenu(varTuple):
 
     print("\nFor input %s %s, what do you want to do?" %
