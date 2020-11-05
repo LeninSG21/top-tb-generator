@@ -1,7 +1,6 @@
 # var_struct --> (name, size, type, funcType)
-from random import randint
 
-
+# Function to generate all (regs) inputs and/or inouts within the testbench
 def generateInputTb(input_dicc, inout_dicc):
     s = ""
     for i in input_dicc.values():
@@ -9,6 +8,8 @@ def generateInputTb(input_dicc, inout_dicc):
     for i in inout_dicc.values():
         s += "\treg %s %s;\n" % (i[1], i[0])
     return s
+
+# Function to generate all (wires) outputs within the testbench
 
 
 def generateOutputTb(output_dicc):
@@ -20,8 +21,8 @@ def generateOutputTb(output_dicc):
 # Generates stimulus values for inputs to simulates
 
 
-def generateMainSequence(input_dicc):
-    s = "\t\tfor(integer i = 0; i < 10; i++) begin\n\t\t\t#2"
+def generateMainSequence(input_dicc, forIt):
+    s = "\t\tfor(integer i = 0; i < %d; i++) begin\n\t\t\t#2" % forIt
     for varTuple in input_dicc.values():
         if varTuple[0] != 'clk' and varTuple[0] != 'rst':
             # busSize = int(varTuple[1].split(":")[0][1:]) + \
@@ -31,9 +32,11 @@ def generateMainSequence(input_dicc):
             elif varTuple[3] == 'up':
                 s += f"\n\t\t\t{varTuple[0]} = i;"
             elif varTuple[3] == "down":
-                s += f"\n\t\t\t{varTuple[0]} = 10-i;"
+                s += f"\n\t\t\t{varTuple[0]} = {forIt-1}-i;"
     s += "\n\t\tend"
     return s
+
+# Function to initialize input variables within the testbench
 
 
 def variableInit(input_dicc):
@@ -52,7 +55,7 @@ def variableInit(input_dicc):
             #     s+=generateDescendign()
     return s
 
-# This function creates the Verilog testbench template with module and inputs/outputs names.
+# Function to create the Verilog testbench template with module, parameters (if so), inputs/outputs variables, initialization and stimulus
 
 
 def getTBString(moduleName, paramsStr, regStr, wireStr, hasClk, hasRst, varInit, mainSequence):
@@ -67,6 +70,7 @@ def getTBString(moduleName, paramsStr, regStr, wireStr, hasClk, hasRst, varInit,
 
 module {moduleName}_tb;
 {paramsStr}
+
     //Creación de regs y wires
 {regStr}
 {wireStr}
@@ -76,7 +80,7 @@ module {moduleName}_tb;
 initial
   begin
     $dumpfile("{moduleName}_tb.vcd");
-    $dumpvars (0, {moduleName}_tb);
+    $dumpvars (1, {moduleName}_tb);
 {varInit}
     {"clk = 0;" if hasClk else ""}
     {rstInit if hasRst else ""}

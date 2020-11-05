@@ -1,6 +1,13 @@
 
+def selectForIterations():
+    forIt = input("\nInput loop for iterations (default 10): ")
+
+    return int(forIt) if forIt.isnumeric() else 10
+
+
 def displayMenu(varTuple):
-    print("For input %s %s, what do you want to do?" %
+
+    print("\nFor input %s %s, what do you want to do?" %
           (varTuple[1], varTuple[0]))
     print("1 -> Random signal generation\n2 -> Up-counting\n3 -> Descending counter")
     opt = input("Option: ")

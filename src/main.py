@@ -3,8 +3,8 @@ import sys
 import re
 from strFuncs import *
 from displayMenu import *
-from random import randint
-# Variables y regex globales
+
+# Global regex and variables
 re_module_name = r'module\s+([_a-zA-Z]\w*)'
 
 '''
@@ -30,7 +30,7 @@ var_struct --> (name, size, type, funcType)
 }
 
 '''
-# Diccionarios globales
+# Global dictionaries
 input_dicc = {}
 output_dicc = {}
 inout_dicc = {}
@@ -40,8 +40,8 @@ if __name__ == "__main__":
 
     if len(sys.argv) < 2:
         print("Missing input arguments!")
-        exit(0)
-
+        sys.exit(0)
+    # Argument provided by the console with the file to open
     filename = sys.argv[1]
 
     # Open the design file
@@ -59,11 +59,13 @@ if __name__ == "__main__":
     inout_list = re.findall(re_inout, text)
 
     # print(params_list)
+    # Give propper format to parameters within the testbench
+    # Iterate over parameters
     paramsStr = ""
     for par in params_list:
         paramsStr += "\n\t" + par[0] + ";"
 
-    # Flags for clk and rst
+    # Flags for clk and rst (verify if secuential or combinational verilog design)
     hasClk = False
     hasRst = False
 
@@ -97,11 +99,14 @@ if __name__ == "__main__":
             else:  # inout
                 inout_dicc[varTuple[0]] = varTuple
 
+    # User type in iterator for simulation values
+    forIt = selectForIterations()
+
     # Generate variable delcarations in SystemVerilog format
     regStr = generateInputTb(input_dicc, inout_dicc)
     wireStr = generateOutputTb(output_dicc)
     varInit = variableInit(input_dicc)
-    mainSequence = generateMainSequence(input_dicc)
+    mainSequence = generateMainSequence(input_dicc, forIt)
 
     # Open the test bench file in utf8 encoding
     tbName = filename[0:len(filename)-3]+"_tb.sv"
