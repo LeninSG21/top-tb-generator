@@ -55,18 +55,18 @@ def variableInit(input_dicc):
 # This function creates the Verilog testbench template with module and inputs/outputs names.
 
 
-def getTBString(moduleName, regStr, wireStr, hasClk, hasRst, varInit, mainSequence):
+def getTBString(moduleName, paramsStr, regStr, wireStr, hasClk, hasRst, varInit, mainSequence):
 
     rstInit = """rst = 1;
 
     # 3
-    rst = 0"""
+    rst = 0;"""
 
     return f"""
 `timescale 1ns/1ps
 
 module {moduleName}_tb;
-
+{paramsStr}
     //Creación de regs y wires
 {regStr}
 {wireStr}

@@ -1,36 +1,30 @@
 
 `timescale 1ns/1ps
 
-module pc_control_tb;
+module gray_ctr_tb;
 
+	parameter WIDTH=4;
     //Creación de regs y wires
 	reg  clk;
-	reg  rst;
-	reg [31:0] in_pc;
-	reg [4:0] Selector;
+	reg  reset;
 
-	wire [31:0] out_pc;
+	wire [WIDTH-1:0] q;
 
     //Instanciar el top
-    pc_control UUT(.*);
+    gray_ctr UUT(.*);
 
 initial
   begin
-    $dumpfile("pc_control_tb.vcd");
-    $dumpvars (0, pc_control_tb);
+    $dumpfile("gray_ctr_tb.vcd");
+    $dumpvars (0, gray_ctr_tb);
 
-		in_pc = 0;
-		Selector = 0;
+		reset = 0;
     clk = 0;
-    rst = 1;
-
-    # 3
-    rst = 0
+    
 
 		for(integer i = 0; i < 10; i++) begin
 			#2
-			in_pc = $urandom();
-			Selector = i;
+			reset = $urandom();
 		end
     #4
 	$finish;

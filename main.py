@@ -13,7 +13,14 @@ re_module_name = r'module\s+([_a-zA-Z]\w*)'
 4th group --> bus size
 5th group --> variables separated by coma
 '''
-re_inout = r'(input|output|inout)(\s+(reg|logic))?(\s*\[\d+:\d+\]\s*|\s+)((?!input|output|inout|reg|logic)[_a-zA-Z]\w*(,\s*(?!input|output|inout|reg|logic)[_a-zA-Z]\w*)*)'
+# re_inout = r'(input|output|inout)(\s+(reg|logic))?(\s*\[\d+:\d+\]\s*|\s+)((?!input|output|inout|reg|logic)[_a-zA-Z]\w*(,\s*(?!input|output|inout|reg|logic)[_a-zA-Z]\w*)*)'
+re_inout = r'(input|output|inout)(\s+(reg|logic))?(\s*\[.+\]\s*|\s+)((?!input|output|inout|reg|logic)[_a-zA-Z]\w*(,\s*(?!input|output|inout|reg|logic)[_a-zA-Z]\w*)*)'
+
+'''
+1st group --> param_name
+2nd group --> param_size
+'''
+re_parameters = r'((parameter)\s+(\w*)\s*\=\s*((\d+\'(b|h|d))?\w+))'  # r'(parameter)\s+(\w*)\s*\=\s*((\d+\'(b|h|d))?\d+)'
 
 '''
 key --> variable name
@@ -46,8 +53,15 @@ if __name__ == "__main__":
 
     # Get the module name
     moduleName = re.findall(re_module_name, text)[0]
+    # Get all parameters
+    params_list = re.findall(re_parameters, text)
     # Get all the inputs and outputs in the text
     inout_list = re.findall(re_inout, text)
+
+    # print(params_list)
+    paramsStr = ""
+    for par in params_list:
+        paramsStr += "\n\t" + par[0] + ";"
 
     # Flags for clk and rst
     hasClk = False
@@ -93,7 +107,7 @@ if __name__ == "__main__":
     tbName = filename[0:len(filename)-3]+"_tb.sv"
     tb = open(tbName, 'w', encoding='utf8')
     # Write the file with the string formatted appropriately
-    tb.write(getTBString(moduleName, regStr,
+    tb.write(getTBString(moduleName, paramsStr, regStr,
                          wireStr, hasClk, hasRst, varInit, mainSequence))
     # Close the file
     tb.close()
