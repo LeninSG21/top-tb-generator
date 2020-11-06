@@ -22,6 +22,8 @@ def generateOutputTb(output_dicc):
 
 
 def generateMainSequence(input_dicc, forIt):
+    if len(input_dicc) == 0:
+        return ""
     s = "\t\tfor(integer i = 0; i < %d; i++) begin\n\t\t\t#2" % forIt
     for varTuple in input_dicc.values():
         if varTuple[0] != 'clk' and varTuple[0] != 'rst':
