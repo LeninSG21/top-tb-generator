@@ -6,7 +6,7 @@ To execute the tb generator, run the main.py file in the console and provide the
 
 For example:
 
-`python3 ./src/main.py <pathToFile>.sv`
+`python3 ./Python/main.py <pathToFile>.sv`
 
 When executing the script, it will prompt some inputs to determine the signal generation for the input variables detected. the options are:
 
