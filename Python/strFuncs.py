@@ -22,11 +22,11 @@ def generateOutputTb(output_dicc):
 
 
 def generateMainSequence(input_dicc, forIt):
-    if len(input_dicc) == 0:
-        return ""
+    exists = False
     s = "\t\tfor(integer i = 0; i < %d; i++) begin\n\t\t\t#2" % forIt
     for varTuple in input_dicc.values():
         if varTuple[0] != 'clk' and varTuple[0] != 'rst':
+            exists = True
             # busSize = int(varTuple[1].split(":")[0][1:]) + \
             #     1 if varTuple[1].strip() != "" else 1
             if varTuple[3] == 'random':
@@ -36,7 +36,7 @@ def generateMainSequence(input_dicc, forIt):
             elif varTuple[3] == "down":
                 s += f"\n\t\t\t{varTuple[0]} = {forIt-1}-i;"
     s += "\n\t\tend"
-    return s
+    return s if exists else ""
 
 # Function to initialize input variables within the testbench
 
