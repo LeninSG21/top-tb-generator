@@ -23,3 +23,19 @@ def displayMenu(varTuple):
         return "up"
     else:
         return "down"
+
+
+def printHelp():
+    print("""
+    python3 main.py [OPTIONS] [FILENAME]
+
+    Options:
+
+    -r --> All variables are assigned a random number $urandom() in every iteration
+    -a --> Variables are assigned a number that increases by 1 with each iteration
+    -d --> Variables are assigned a number that starts at the for loop limit and decreases by 1 every iteration
+
+    With no option, the user will be prompted to select the value to assign for each variable
+    
+    """)
+    return

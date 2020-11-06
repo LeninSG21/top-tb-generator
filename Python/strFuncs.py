@@ -21,7 +21,7 @@ def generateOutputTb(output_dicc):
 # Generates stimulus values for inputs to simulate
 
 
-def generateMainSequence(input_dicc, forIt):
+def generateMainSequence(input_dicc, forIt,):
     exists = False
     s = "\t\tfor(integer i = 0; i < %d; i++) begin\n\t\t\t#2" % forIt
     for varTuple in input_dicc.values():

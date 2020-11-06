@@ -26,10 +26,10 @@ initial
     
     
 
-		for(integer i = 0; i < 10; i++) begin
+		for(integer i = 0; i < 8; i++) begin
 			#2
-			x = $urandom();
-			zz = $urandom();
+			x = 7-i;
+			zz = 7-i;
 		end
     #4
 	$finish;
