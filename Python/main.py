@@ -14,7 +14,7 @@ re_module_name = r'module\s+([_a-zA-Z]\w*)'
 5th group --> variables separated by coma
 '''
 # re_inout = r'(input|output|inout)(\s+(reg|logic))?(\s*\[\d+:\d+\]\s*|\s+)((?!input|output|inout|reg|logic)[_a-zA-Z]\w*(,\s*(?!input|output|inout|reg|logic)[_a-zA-Z]\w*)*)'
-re_inout = r'(input|output|inout)(\s+(reg|logic))?(\s*\[.+\]\s*|\s+)((?!input|output|inout|reg|logic)[_a-zA-Z]\w*(,\s*(?!input|output|inout|reg|logic)[_a-zA-Z]\w*)*)'
+re_inout = r'(input|output|inout)(\s+(reg|logic))?(\s*\[[^\]]+\]\s*|\s+)((?!input|output|inout|reg|logic)[_a-zA-Z]\w*(,\s*(?!input|output|inout|reg|logic)[_a-zA-Z]\w*)*)'
 
 '''
 1st group --> param_name
