@@ -38,14 +38,37 @@ inout_dicc = {}
 
 if __name__ == "__main__":
 
-    if len(sys.argv) < 2:
-        print("Missing input arguments!")
+    override = False
+    # Read args
+    if len(sys.argv) <= 1:
+        print("Missing arguments!")
         sys.exit(0)
-    # Argument provided by the console with the file to open
-    filename = sys.argv[1]
+    elif len(sys.argv) == 2:
+        if sys.argv[1] == "--help":
+            printHelp()
+            sys.exit(0)
+        inputFile = sys.argv[1]
+    else:
+        for i in range(1, len(sys.argv)):
+            if sys.argv[i][0] == '-':
+                if sys.argv[i] == "--help":
+                    printHelp()
+                    sys.exit(0)
+                for j in range(1, len(sys.argv[i])):
+                    if sys.argv[i][j] == 'r':
+                        funcOverride = 'random'
+                        override = True
+                    elif sys.argv[i][j] == 'a':
+                        funcOverride = 'up'
+                        override = True
+                    elif sys.argv[i][j] == 'd':
+                        funcOverride = 'down'
+                        override = True
+            else:
+                inputFile = sys.argv[i]
 
     # Open the design file
-    f = open(filename, 'r')
+    f = open(inputFile, 'r')
     text = f.read()  # Read it as a string
     f.close()  # Close the file
 
@@ -92,7 +115,10 @@ if __name__ == "__main__":
             # Save the tuple in the appropriate dictionary
             if(m[0] == "input"):
                 if varTuple[0] != 'clk' and varTuple[0] != 'rst':
-                    varTuple[3] = displayMenu(varTuple)
+                    if override:
+                        varTuple[3] = funcOverride
+                    else:
+                        varTuple[3] = displayMenu(varTuple)
                 input_dicc[varTuple[0]] = varTuple
             elif(m[0] == "output"):
                 output_dicc[varTuple[0]] = varTuple
@@ -106,10 +132,11 @@ if __name__ == "__main__":
     regStr = generateInputTb(input_dicc, inout_dicc)
     wireStr = generateOutputTb(output_dicc)
     varInit = variableInit(input_dicc)
-    mainSequence = generateMainSequence(input_dicc, forIt)
+    mainSequence = generateMainSequence(
+        input_dicc, forIt)
 
     # Open the test bench file in utf8 encoding
-    tbName = filename[0:len(filename)-3]+"_tb.sv"
+    tbName = inputFile[0:len(inputFile)-3]+"_tb.sv"
     tb = open(tbName, 'w', encoding='utf8')
     # Write the file with the string formatted appropriately
     tb.write(getTBString(moduleName, paramsStr, regStr,
