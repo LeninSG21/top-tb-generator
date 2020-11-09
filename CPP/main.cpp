@@ -8,6 +8,8 @@
 
 using namespace std;
 
+void generateMainSequence();
+
 struct var_struct
 {
     string name;
@@ -17,8 +19,8 @@ struct var_struct
 };
 
 regex re_module("module\\s+([_a-zA-Z]\\w*)");
-regex re_inout("(input|output|inout)(\\s+(reg|logic))?(\\s*\\[[^\\]]+\\]\\s*|\\s+)((?!input|output|inout|reg|logic)[_a-zA-Z]\\w*(,\\s*(?!input|output|inout|reg|logic)[_a-zA-Z]\\w*)*)")
-    regex re_parameters("((parameter)\\s+(\\w*)\\s*\\=\\s*((\\d+\'(b|h|d))?\\w+))");
+regex re_inout("(input|output|inout)(\\s+(reg|logic))?(\\s*\\[[^\\]]+\\]\\s*|\\s+)((?!input|output|inout|reg|logic)[_a-zA-Z]\\w*(,\\s*(?!input|output|inout|reg|logic)[_a-zA-Z]\\w*)*)");
+regex re_parameters("((parameter)\\s+(\\w*)\\s*\\=\\s*((\\d+\'(b|h|d))?\\w+))");
 smatch m;
 
 string moduleName = "";
@@ -74,7 +76,8 @@ int main(int argc, char *argv[])
     {
 
         string vars = m[5];
-        string varName = "" for (char c : vars)
+        string varName = "";
+        for (char c : vars)
         {
             if (c == ',')
             {
@@ -95,11 +98,43 @@ int main(int argc, char *argv[])
             else if (c != ' ')
                 varName += c;
         }
+        struct var_struct x;
+        x.name = varName;
+        x.size = m[4];
+        x.type = m[3];
+        x.funcType = "random";
 
+        if (m[1] == "input")
+            input_map[varName] = x;
+        else if (m[1] == "output")
+            output_map[varName] = x;
+        else
+            inout_map[varName] = x;
         ioi = m.suffix().str();
     }
 
     return 0;
+}
+
+string generateMainSequence()
+{
+    bool exists = false;
+    string s = "\t\tfor(integer i = 0; i < " + to_string(forIt) + "; i++) begin \n\t\t\t#2";
+    for (auto const &varTupple : input_map)
+    {
+        if ((varTupple.first != "clk") && (varTupple.first != "rst"))
+        {
+            exists = true;
+            if (varTupple.second.funcType == "random")
+                s += "\n\t\t\t" + varTupple.first + " = $urandom();";
+            else if (varTupple.second.funcType == "up")
+                s += "\n\t\t\t" + varTupple.first + " = i;";
+            else if (varTupple.second.funcType == "down")
+                s += "\n\t\t\t" + varTupple.first + " = " + to_string(forIt - 1) + " - i;";
+        }
+    }
+    s += "\n\t\tend";
+    return exists ? s : "";
 }
 
 /*
