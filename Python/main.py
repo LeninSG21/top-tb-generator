@@ -5,6 +5,10 @@ from strFuncs import *
 from displayMenu import *
 
 # Global regex and variables
+re_comments = r'\/\/.*'
+re_multiline_comm = r'\/\*.*\*\/'
+re_com = r'\/\/.*|\/\*(.|\s)*\*\/'
+
 re_module_name = r'module\s+([_a-zA-Z]\w*)'
 
 '''
@@ -69,10 +73,16 @@ if __name__ == "__main__":
 
     # Open the design file
     f = open(inputFile, 'r')
-    text = f.read()  # Read it as a string
+    textC = f.read()  # Read it as a string
     f.close()  # Close the file
 
     print("Welcome to the testbench generator!")
+
+    # print(textC)
+    text = re.sub(re_comments, "", textC)
+    # print(text)
+    text = re.sub(re_multiline_comm, "", text, flags=re.DOTALL)
+    # print(text)
 
     # Get the module name
     moduleName = re.findall(re_module_name, text)[0]
