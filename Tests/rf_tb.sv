@@ -33,12 +33,12 @@ initial
     # 3
     rst = 0;
 
-		for(integer i = 0; i < 10; i++) begin
+		for(integer i = 0; i < 32; i++) begin
 			#2
-			rs_addr = $urandom();
-			rt_addr = $urandom();
-			rd_addr = $urandom();
-			rd_w_data = $urandom();
+			rs_addr = 31-i;
+			rt_addr = 31-i;
+			rd_addr = 31-i;
+			rd_w_data = 31-i;
 		end
     #4
 	$finish;
