@@ -21,11 +21,11 @@ def generateOutputTb(output_dicc):
 # Generates stimulus values for inputs to simulate
 
 
-def generateMainSequence(input_dicc, forIt,):
+def generateMainSequence(input_dicc, forIt, clk, rst):
     exists = False
     s = "\t\tfor(integer i = 0; i < %d; i++) begin\n\t\t\t#2" % forIt
     for varTuple in input_dicc.values():
-        if varTuple[0] != 'clk' and varTuple[0] != 'rst':
+        if varTuple[0] != clk and varTuple[0] != rst[0]:
             exists = True
             # busSize = int(varTuple[1].split(":")[0][1:]) + \
             #     1 if varTuple[1].strip() != "" else 1
@@ -41,34 +41,26 @@ def generateMainSequence(input_dicc, forIt,):
 # Function to initialize input variables within the testbench
 
 
-def variableInit(input_dicc):
+def variableInit(input_dicc, clk, rst):
     s = ""
     for varTuple in input_dicc.values():
-        if varTuple[0] != 'clk' and varTuple[0] != 'rst':
-            s += f"\n\t\t{varTuple[0]} = 0;"
-        # if varTuple[0] != 'clk' and varTuple[0] != 'rst':
-        #     busSize = int(varTuple[1].split(":")[0][1:]) + \
-        #         1 if varTuple[1].strip() != "" else 1
-        #     if varTuple[3] == 'random':
-        #         s += generateRandom(busSize, varTuple[0])
-            # elif varTuple[3] == 'up':
-            #     s+=generateAscending()
-            # elif varTuple[3] == 'down':
-            #     s+=generateDescendign()
+        s += f"\n\t\t{varTuple[0]}"
+        if(varTuple[0] == rst[0]):
+            s += " = 1;" if rst[1] else " = 0;"
+        else:
+            s += " = 0;"
     return s
 
 # Function to create the Verilog testbench template with module, parameters (if so), inputs/outputs variables, initialization and stimulus
 
 
-def getTBString(moduleName, paramsStr, regStr, wireStr, hasClk, hasRst, varInit, mainSequence):
+def getTBString(moduleName, paramsStr, regStr, wireStr, hasClk, hasRst, varInit, mainSequence, scale, clk, rst):
 
-    rstInit = """rst = 1;
-
-    # 3
-    rst = 0;"""
+    off = "0" if rst[1] else "1"
+    rstOff = f"#3\n\t{rst[0]} = {off};"
 
     return f"""
-`timescale 1ns/1ps
+`timescale {scale}
 
 module {moduleName}_tb;
 {paramsStr}
@@ -83,17 +75,17 @@ initial
   begin
     $dumpfile("{moduleName}_tb.vcd");
     $dumpvars (1, {moduleName}_tb);
-{varInit}
-    {"clk = 0;" if hasClk else ""}
-    {rstInit if hasRst else ""}
 
+
+{varInit}
+    {rstOff if hasRst else ""}
 {mainSequence}
     #4
 	$finish;
  	 
    end
 
- {"always forever #1 clk = ~clk;" if hasClk else ""}
+ {f"always forever #0.5 {clk} = ~{clk};" if hasClk else ""}
   
   
 endmodule

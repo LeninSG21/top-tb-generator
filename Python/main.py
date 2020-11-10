@@ -43,6 +43,9 @@ inout_dicc = {}
 if __name__ == "__main__":
 
     override = False
+    scaleOverride = False
+    clkOverride = False
+    rstOverride = False
     # Read args
     if len(sys.argv) <= 1:
         print("Missing arguments!")
@@ -68,6 +71,12 @@ if __name__ == "__main__":
                     elif sys.argv[i][j] == 'd':
                         funcOverride = 'down'
                         override = True
+                    elif sys.argv[i][j] == 't':
+                        scaleOverride = True
+                    elif sys.argv[i][j] == 'c':
+                        clkOverride = True
+                    elif sys.argv[i][j] == 's':
+                        rstOverride = True
             else:
                 inputFile = sys.argv[i]
 
@@ -77,6 +86,15 @@ if __name__ == "__main__":
     f.close()  # Close the file
 
     print("Welcome to the testbench generator!")
+
+    clk = "clk"
+    if clkOverride:
+        clk = getClk()
+
+    # (rst name, active HIGH?)
+    rst = ("rst", True)
+    if rstOverride:
+        rst = getRst()
 
     # print(textC)
     text = re.sub(re_comments, "", textC)
@@ -118,13 +136,13 @@ if __name__ == "__main__":
             # Create the tuple to save the variable info
             varTuple = [var.strip(), m[3].strip(), m[2], '']
             if not hasClk:
-                hasClk = varTuple[0] == 'clk'
+                hasClk = varTuple[0] == clk
             if not hasRst:
-                hasRst = varTuple[0] == 'rst'
+                hasRst = varTuple[0] == rst[0]
 
             # Save the tuple in the appropriate dictionary
             if(m[0] == "input"):
-                if varTuple[0] != 'clk' and varTuple[0] != 'rst':
+                if varTuple[0] != clk and varTuple[0] != rst[0]:
                     if override:
                         varTuple[3] = funcOverride
                     else:
@@ -138,19 +156,24 @@ if __name__ == "__main__":
     # User type in iterator for simulation values
     forIt = selectForIterations()
 
+    # User type in the timescale for the testbench
+    scale = "1ns/1ps"
+    if scaleOverride:
+        scale = timescale()
+
     # Generate variable delcarations in SystemVerilog format
     regStr = generateInputTb(input_dicc, inout_dicc)
     wireStr = generateOutputTb(output_dicc)
-    varInit = variableInit(input_dicc)
+    varInit = variableInit(input_dicc, clk, rst)
     mainSequence = generateMainSequence(
-        input_dicc, forIt)
+        input_dicc, forIt, clk, rst)
 
     # Open the test bench file in utf8 encoding
     tbName = inputFile[0:len(inputFile)-3]+"_tb.sv"
     tb = open(tbName, 'w', encoding='utf8')
     # Write the file with the string formatted appropriately
     tb.write(getTBString(moduleName, paramsStr, regStr,
-                         wireStr, hasClk, hasRst, varInit, mainSequence))
+                         wireStr, hasClk, hasRst, varInit, mainSequence, scale, clk, rst))
     # Close the file
     tb.close()
     print("Done")
