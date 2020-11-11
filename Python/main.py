@@ -3,11 +3,10 @@ import sys
 import re
 from strFuncs import *
 from displayMenu import *
-import datetime
-import socket
-import os
-#
-current_time = datetime.datetime.now()
+from datetime import datetime
+
+# Get the current time
+current_time = datetime.now()
 date_time = current_time.strftime("%m/%d/%Y, %H:%M:%S")
 
 # Global regex and variables
@@ -47,7 +46,6 @@ inout_dicc = {}
 if __name__ == "__main__":
 
     # Override definition
-    Find_Path = sys.path[0]
     fOverride = False
     scaleOverride = False
     clkOverride = False
@@ -97,6 +95,7 @@ if __name__ == "__main__":
 
     print("Welcome to the testbench generator!")
 
+    # Clk name
     clk = "clk"
     if clkOverride:
         clk = getClk()
@@ -179,9 +178,11 @@ if __name__ == "__main__":
     # Open the test bench file in utf8 encoding
     tbName = inputFile[0:len(inputFile)-3]+"_tb.sv"
     tb = open(tbName, 'w', encoding='utf8')
+
     # Write the file with the string formatted appropriately
     tb.write(getTBString(date_time, moduleName, paramsStr, regStr,
                          wireStr, hasClk, hasRst, varInit, mainSequence, scale, clk, rst))
+
     # Close the file
     tb.close()
     print("Done")

@@ -1,10 +1,8 @@
 from random import randint
-
 # var_struct --> (name, size, type, funcType)
 
+
 # Function to generate all (regs) inputs and/or inouts within the testbench
-
-
 def generateInputTb(input_dicc, inout_dicc):
     s = ""
     for i in input_dicc.values():
@@ -13,26 +11,22 @@ def generateInputTb(input_dicc, inout_dicc):
         s += "\treg %s %s;\n" % (i[1], i[0])
     return s
 
+
 # Function to generate all (wires) outputs within the testbench
-
-
 def generateOutputTb(output_dicc):
     s = ""
     for o in output_dicc.values():
         s += "\twire %s %s;\n" % (o[1], o[0])
     return s
 
+
 # Generates stimulus values for inputs to simulate
-
-
 def generateMainSequence(input_dicc, forIt, clk, rst):
     exists = False
     s = "\tfor(integer i = 0; i < %d; i++) begin\n\t\t#2" % forIt
     for varTuple in input_dicc.values():
         if varTuple[0] != clk and varTuple[0] != rst[0]:
             exists = True
-            # busSize = int(varTuple[1].split(":")[0][1:]) + \
-            #     1 if varTuple[1].strip() != "" else 1
             if varTuple[3] == 'random':
                 s += f"\n\t\t{varTuple[0]} = $urandom({randint(1,100000)});"
             elif varTuple[3] == 'up':
@@ -42,9 +36,8 @@ def generateMainSequence(input_dicc, forIt, clk, rst):
     s += "\n\tend"
     return s if exists else ""
 
+
 # Function to initialize input variables within the testbench
-
-
 def variableInit(input_dicc, clk, rst):
     s = ""
     for varTuple in input_dicc.values():
@@ -55,9 +48,8 @@ def variableInit(input_dicc, clk, rst):
             s += " = 0;"
     return s
 
+
 # Function to create the Verilog testbench template with module, parameters (if so), inputs/outputs variables, initialization and stimulus
-
-
 def getTBString(date_time, moduleName, paramsStr, regStr, wireStr, hasClk, hasRst, varInit, mainSequence, scale, clk, rst):
 
     off = "0" if rst[1] else "1"

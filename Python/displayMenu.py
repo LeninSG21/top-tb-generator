@@ -3,14 +3,14 @@ def timescale():
     ts = input("\nSet time unit and time precision for timescale: ")
     return ts
 
+
 # Function to ask user for a desirable clk signal
-
-
 def getClk():
     clk = input("\nDefine new name of your clock: ")
     return clk
 
 
+# Function to ask user for a desirable rst signal
 def getRst():
     rstName = input("\nDefine the new name of your reset: ")
     active = input("\nIs it active high? [y/n]: ").lower()
@@ -21,8 +21,6 @@ def getRst():
 
 
 # Function to generate stimulus based on User-defined iterator, by default generates up to 10 stimulus
-
-
 def selectForIterations():
     forIt = input("\nInput loop for iterations (default 10): ")
 
@@ -50,6 +48,7 @@ def displayMenu(varTuple):
         return "down"
 
 
+# Function to display a help menu for a fast set up
 def printHelp():
     print("""
     python3 main.py [OPTIONS] [FILENAME]
