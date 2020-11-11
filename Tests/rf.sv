@@ -18,7 +18,7 @@ module register_file #(
   
     integer i;
 
-    always_ff @(posedge reloj or posedge reset)
+    always_ff @(posedge clk or posedge rst)
         begin
             if(rst)
                 for(i = 0; i <= 31; i = i+1)

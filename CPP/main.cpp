@@ -5,6 +5,7 @@
 #include <iterator>
 #include <map>
 #include <fstream>
+#include<bits/stdc++.h> 
 
 using namespace std;
 
@@ -16,48 +17,139 @@ struct var_struct
     string funcType;
 };
 
-//Functions
-string generateMainSequence();
+struct rst_struct
+{
+    string name;
+    bool activeHigh;
+};
+
+/********** FUNCTIONS *************/
+
+//display
+void getClk();
+void getRst();
+void displayMenu(struct var_struct *var);
 void selectForIterations();
+void timescale();
+void printHelp();
+
+string generateMainSequence();
 string generateInputTb();
 string generateOutputTb();
 string variableInit();
-void displayMenu(struct var_struct *var);
-string getTBStr(string moduleName, string paramStr, string initIn, string initOut, string varInit, string mainSequence);
 
-//Regex
+string getTBStr();
+
+// Regex
 regex re_module("module\\s+([_a-zA-Z]\\w*)");
 regex re_inout("(input|output|inout)(\\s+(reg|logic))?(\\s*\\[[^\\]]+\\]\\s*|\\s+)((?!input|output|inout|reg|logic)[_a-zA-Z]\\w*(,\\s*(?!input|output|inout|reg|logic)[_a-zA-Z]\\w*)*)");
 regex re_parameters("((parameter)\\s+(\\w*)\\s*\\=\\s*((\\d+\'(b|h|d))?\\w+))");
 smatch m;
 
-//Global variables
+// Global variables
 int forIt = 10;
 bool hasClk = false;
 bool hasRst = false;
+string moduleName = "";
+string paramStr = "";
+string initIn;
+string initOut;
+string mainSequence;
+string varInit;
+string clk = "clk";
+struct rst_struct rst = { .name = "rst", .activeHigh = true };
+string scale = "1ns/1ps";
 
-
+// Global Dictonaries
 map<string, var_struct> input_map;
 map<string, var_struct> output_map;
 map<string, var_struct> inout_map;
 
+// Override definition
+string funcOverride;
+bool fOverride = false;
+bool scaleOverride = false;
+bool clkOverride = false;
+bool rstOverride = false;
+bool forOverride = false;
+
 int main(int argc, char *argv[])
 {
-    
-    if (argc < 2)
+    string filename;
+
+    if (argc <= 1)
     {
         cout << "Missing input arguments!" << endl;
         return 0;
     }
+    else if(argc == 2)
+    {
+        if(strcmp(argv[1], "--help") == 0)
+        {
+            printHelp();
+            return 0;
+        }
+        filename = argv[1];
+    }
+    else
+    {
+        for(uint16_t i = 1; i < argc; i++)
+        {
+            if(argv[i][0] == '-')
+            {
+                if(strcmp(argv[i], "--help") == 0)
+                {
+                    printHelp();
+                    return 0;
+                }
+                
+                uint16_t j = 0;
+                while(argv[i][++j]!= 0)
+                {
+                    switch (argv[i][j])
+                    {
+                    case 'r':
+                        funcOverride = "random";
+                        fOverride = true;
+                        break;
+                    case 'a':
+                        funcOverride = "up";
+                        fOverride = true;
+                        break;
+                    case 'd':
+                        funcOverride = "down";
+                        fOverride = true;
+                        break;
+                    case 't':
+                        scaleOverride = true;
+                        break;
+                    case 'c':
+                        clkOverride = true;
+                        break;
+                    case 's':
+                        rstOverride = true;
+                        break;
+                    case 'f':
+                        forOverride = true;
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+            else
+            {
+               filename = argv[i];
+            }
+            
+        }
+    }
 
+    // Read File
     fstream file;
-    string word, filename;
-
+    string word;
     string text = "";
 
-
-    // filename of the file
-    filename = argv[1];
     // opening file
     file.open(filename.c_str());
     // extracting words from the file
@@ -67,21 +159,30 @@ int main(int argc, char *argv[])
         //cout << word << endl;
         text += word + "\n";
     }
+    
+    file.close();
 
-    //return 0;
+    // Welcome message
+    cout << "Welcome to the testbench generator!\n" << endl;
 
-    //string text = "module register_file #(parameter W = 32)(input rst, clk, reg_write, input [4:0] rs_addr,rt_addr, rd_addr, input logic  [W-1:0] rd_w_data, output logic [31:0] rs_data, rt_data);";
+    //Clk name
+    if (clkOverride)
+        getClk();
+
+    if (rstOverride)
+        getRst();
+
+    
     // Get the module name
-    string moduleName = "";
     if (regex_search(text, m, re_module))
         moduleName = m[1];
 
-    // Get the parameters
+    // Get the parameters and format them
     string par = text;
-    string paramStr = "";
+    
     while (regex_search(par, m, re_parameters))
     {
-        paramStr += "\\n\\t" + (string)m[0] + ";";
+        paramStr += "\n\t" + (string)m[0] + ";";
         par = m.suffix().str();
     }
 
@@ -102,20 +203,20 @@ int main(int argc, char *argv[])
         {
             if (c == ',')
             {
-                struct var_struct x;
-                x.name = varName;
-                x.size = m[4];
-                x.type = m[3];
+                struct var_struct x = {.name = varName, .size = m[4], .type = m[3]};
 
                 if (!hasClk)
-                    hasClk = varName == "clk";
+                    hasClk = varName == clk;
                 if (!hasRst)
-                    hasRst = varName == "rst";
+                    hasRst = varName == rst.name;
 
                 if (m[1] == "input")
                 {
-                    if (varName != "clk" && varName != "rst")
-                        displayMenu(&x);
+                    if (varName != clk && varName != rst.name)
+                        if(fOverride)
+                            x.funcType = funcOverride;
+                        else
+                            displayMenu(&x);
                     input_map[varName] = x;
                 }
                 else if (m[1] == "output")
@@ -131,66 +232,69 @@ int main(int argc, char *argv[])
 
         ioi = m.suffix().str();
     }
-    selectForIterations();
 
-    string initIn = generateInputTb();
-    string initOut = generateOutputTb();
-    string mainSeq = generateMainSequence();
-    string varInit = variableInit();
+    // User type in iterator for simulation values
+    if (forOverride)
+        selectForIterations();
 
-    cout << "\n"
-         << endl;
-    cout << getTBStr(moduleName, paramStr, initIn, initOut, varInit, mainSeq) << endl;
+    // User type in the timescale for the testbench
+    if (scaleOverride)
+        timescale();
+
+
+    initIn = generateInputTb();
+    initOut = generateOutputTb();
+    mainSequence = generateMainSequence();
+    varInit = variableInit();
+
+    //Write file
+    string testname;
+    testname = filename;
+
+    int size = testname.length();
+    testname[size - 3] = '_';
+    testname[size - 2] = 't';
+    testname[size - 1] = 'b';
+    testname +=".sv";
+    
+    ofstream test(testname.c_str());
+    test << getTBStr() << endl;
+    test.close();
     return 0;
 }
 
-string getTBStr(string moduleName, string paramStr, string initIn, string initOut, string varInit, string mainSequence)
+
+/*********** FUNCTIONS *********************/
+
+//Get clock signal function
+
+void getClk()
 {
-    string s = "`timescale 1ns/1ps\n\nmodule " + moduleName + "_tb;";
-    if (paramStr != "")
-        s += "\n\t" + paramStr;
-    if (initIn != "")
-        s += "\n\t" + initIn;
-    if (initOut != "")
-        s += "\n\t" + initOut;
-
-    s += "\n\t" + moduleName + " UUT(.*);\n\t";
-    s += "initial begin\n\t\t$dumpfile(\"" + moduleName + "_tb.vcd\");";
-    s += "\n\t\t$dumpvars (1, " + moduleName + "_tb);";
-    s += "\n\t\t" + varInit;
-    if (hasRst)
-        s += "\n\t\t#3\n\t\trst = 0;";
-    s += "\n\t\t" + mainSequence;
-    s += "\n\t\t#4\n\t\t$finish;\n\tend";
-    if (hasClk)
-        s += "\n\talways forever #0.5 clk = ~clk;";
-
-    s += "\nendmodule";
-
-    return s;
+    printf("\nDefine new name of your clock: ");
+    cin >> clk;
 }
 
-string generateMainSequence()
+//Get reset signal function
+void getRst()
 {
-    bool exists = false;
-    string s = "for(integer i = 0; i < " + to_string(forIt) + "; i++) begin \n\t\t\t#2";
-    for (auto const &varTupple : input_map)
-    {
-        if ((varTupple.first != "clk") && (varTupple.first != "rst"))
-        {
-            exists = true;
-            if (varTupple.second.funcType == "random")
-                s += "\n\t\t\t" + varTupple.first + " = $urandom();";
-            else if (varTupple.second.funcType == "up")
-                s += "\n\t\t\t" + varTupple.first + " = i;";
-            else if (varTupple.second.funcType == "down")
-                s += "\n\t\t\t" + varTupple.first + " = " + to_string(forIt - 1) + " - i;";
-        }
-    }
-    s += "\n\t\tend";
-    return exists ? s : "";
+    string active="";
+
+    printf("\nDefine name of your reset signal: ");
+    cin >> rst.name;
+    printf("\nIs it active HIGH? [y/n] ");
+    cin >> active;
+    transform(active.begin(), active.end(), active.begin(), ::tolower); 
+    rst.activeHigh = active == "y";
 }
 
+//Get user defined timescale function
+void timescale()
+{
+    printf("\nSet time unit and time precision for timescale: ");
+    cin >> scale;
+}
+
+//Display menu function
 void displayMenu(struct var_struct *var)
 {
     printf("\n\nFor input %s %s, what do you want to do?\n", var->size.c_str(), var->name.c_str());
@@ -211,6 +315,7 @@ void displayMenu(struct var_struct *var)
         var->funcType = "down";
 }
 
+//Iterator function
 void selectForIterations()
 {
     printf("\nInput loop for iterations (default 10): ");
@@ -224,6 +329,75 @@ void selectForIterations()
     {
         forIt = 10;
     }
+}
+
+//Help menu function
+void printHelp()
+{
+    cout << "\n\n\t./tb-generator [OPTIONS] [FILENAME]" << endl
+        <<"\nOptions:\n" << endl
+        << "-r --> All variables are assigned a random number $urandom() in every iteration" << endl
+        << "-a --> Variables are assigned a number that increases by 1 with each iteration"<<endl
+        << "-d --> Variables are assigned a number that starts at the for loop limit and decreases by 1 every iteration" << endl
+        << "-t --> Override default timescale of 1ns/1ps" << endl
+        <<"-s --> Override default reset name (rst) and active high"<<endl
+        <<"-c --> Override default clock name (clk)"<<endl
+        <<"-f --> Override default number of iterations (10)"<<endl
+        << "With no option, the user will be prompted to select the value to assign for each variable, the loop iterations"
+        <<"\nwill be set to 10, the clock signal is expected to be named \"clk\" and the reset signal is expected to be \"rst\""
+        << "\nand active high, and the timescale is set to 1ns/1ps.\n"<<endl;
+    return;
+}
+
+
+string getTBStr()
+{
+    string s = "// Project Name: "+moduleName;
+    
+    s += "\n\n`timescale " + scale + "\n\nmodule " + moduleName + "_tb;";
+    if (paramStr != "")
+        s += "\n" + paramStr;
+    if (initIn != "")
+        s += "\n" + initIn;
+    if (initOut != "")
+        s += "\n" + initOut;
+
+    s += "\n\t" + moduleName + " UUT(.*);\n\t";
+    s += "initial begin\n\t\t$dumpfile(\"" + moduleName + "_tb.vcd\");";
+    s += "\n\t\t$dumpvars (1, " + moduleName + "_tb);";
+    s += "\n\t" + varInit;
+    if (hasRst)
+        s += "\n\t\t#3\n\t\t"+rst.name + " = ";
+        s += rst.activeHigh ? "0;":"1;";
+    s += "\n" + mainSequence;
+    s += "\n\t\t#4\n\t\t$finish;\n\tend";
+    if (hasClk)
+        s += "\n\talways forever #0.5 " + clk + " = ~" + clk + ";";
+
+    s += "\nendmodule";
+
+    return s;
+}
+
+string generateMainSequence()
+{
+    bool exists = false;
+    string s = "\t\tfor(integer i = 0; i < " + to_string(forIt) + "; i++) begin \n\t\t\t#2";
+    for (auto const &varTupple : input_map)
+    {
+        if ((varTupple.first != clk) && (varTupple.first != rst.name))
+        {
+            exists = true;
+            if (varTupple.second.funcType == "random")
+                s += "\n\t\t\t" + varTupple.first + " = $urandom();";
+            else if (varTupple.second.funcType == "up")
+                s += "\n\t\t\t" + varTupple.first + " = i;";
+            else if (varTupple.second.funcType == "down")
+                s += "\n\t\t\t" + varTupple.first + " = " + to_string(forIt - 1) + " - i;";
+        }
+    }
+    s += "\n\t\tend";
+    return exists ? s : "";
 }
 
 string generateInputTb()
@@ -260,39 +434,14 @@ string variableInit()
     for (auto const &varTuple : input_map)
     {
         s += "\n\t\t" + varTuple.first;
-        if (varTuple.first == "rst")
-            s += " = 1;";
+        if (varTuple.first == rst.name)
+            if(rst.activeHigh)
+                s += " = 1;";
+            else
+                s += " = 0;";
+            
         else
             s += " = 0;";
     }
     return s;
 }
-/*
-{
-    string original = "module ALU(input [7:0] A, B, output out);";
-    string s = "module ALU(input [7:0] A, B, output out);";
-    smatch m;
-    regex re_module("module\\s+([a-zA-Z]\\w*)");
-    string module_name;
-    if (regex_search (s,m,re_module)) {
-        module_name = m[1];
-        s = m.suffix().str();
-    }
-    regex re_inout("\\W*((input|output|inout)\\s*(\\[\\d+:\\d+\\]\\s*|\\s+)([_a-zA-Z]\\w*(,\\s*[_a-zA-Z]\\w*)*))");
-    string type, bus, vars;
-    if (regex_search (s,m,re_inout)) {
-        type = m[2];
-        bus = m[3];
-        vars = m[4];
-        s = m.suffix().str();
-    }
-    
-    cout << original << endl;
-    cout << "Module Name: "<< module_name << endl;
-    cout << "Type: " << type << endl;
-    cout << "Bus: " << bus << endl;
-    cout << "Vars: " << vars << endl;
-    cout << "Restante: " << s << endl;
-    
-}
-*/

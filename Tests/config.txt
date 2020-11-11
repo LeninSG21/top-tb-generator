@@ -1,0 +1,6 @@
+RST=reset
+ACTIVE_HIGH=1
+CLK=reloj
+FOR_IT=32
+SCALE=1ns/1ps
+FUNC=r
