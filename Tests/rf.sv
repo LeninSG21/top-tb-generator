@@ -1,20 +1,23 @@
-module register_file (
-        input logic         rst,
-        input logic         clk,
-        input logic   [4:0] rs_addr,
-        input logic   [4:0] rt_addr,
-        input logic   [4:0] rd_addr,
-        input logic  [31:0] rd_w_data,
-        input logic         reg_write,
-        output logic [31:0] rs_data,
-        output logic [31:0] rt_data
+module register_file #(
+  parameter ADDR = 5,
+  parameter BUS_W = 32
+)(
+        input         reset,
+        input         reloj,
+        input   [ADDR-1:0] rs_addr,
+        input   [ADDR-1:0] rt_addr,
+        input   [ADDR-1:0] rd_addr,
+        input  [BUS_W - 1:0] rd_w_data,
+        input         reg_write,
+        output [BUS_W - 1:0] rs_data,
+        output [BUS_W - 1:0] rt_data
     );
     
   logic [31:0] reg_mem [0:31];
   
     integer i;
 
-    always_ff @(posedge clk or posedge rst)
+    always_ff @(posedge reloj or posedge reset)
         begin
             if(rst)
                 for(i = 0; i <= 31; i = i+1)
