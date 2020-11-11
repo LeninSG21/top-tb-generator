@@ -307,8 +307,11 @@ void readConfig(string config_name)
         flag_ready = false;
         for(char c: line)
         {
+            if(c==' ')
+                continue;
             if(!flag_ready)
             {
+                
                 if(c!='=')
                     FLAG+=c;
                 else

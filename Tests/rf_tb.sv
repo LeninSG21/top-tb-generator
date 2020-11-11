@@ -1,6 +1,6 @@
 // Project Name: register_file
 
-`timescale 10ns/1ps
+`timescale 1000ns/1ps
 
 module register_file_tb;
 
@@ -33,11 +33,11 @@ module register_file_tb;
 		reset = 1;
 		for(integer i = 0; i < 256; i++) begin 
 			#2
-			r_write = i;
-			rd_addr = i;
-			rd_w_data = i;
-			rs_addr = i;
-			rt_addr = i;
+			r_write = 255 - i;
+			rd_addr = 255 - i;
+			rd_w_data = 255 - i;
+			rs_addr = 255 - i;
+			rt_addr = 255 - i;
 		end
 		#4
 		$finish;

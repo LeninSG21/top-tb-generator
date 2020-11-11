@@ -1,6 +1,6 @@
 RST=reset
 ACTIVE_HIGH=0
-CLK=reloj_cucu
+CLK   =    reloj_cucu
 FOR_IT=256
-SCALE=10ns/1ps
-FUNC=a
+SCALE   =   1000ns/1ps
+FUNC   =   d
