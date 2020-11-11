@@ -3,7 +3,6 @@
 
 module Multiple_Gates_tb;
 
-
     //Creación de regs y wires
 	reg [1:0] entrada;
 
@@ -11,7 +10,6 @@ module Multiple_Gates_tb;
 	wire  OR;
 	wire  AND;
 	wire  NOR;
-	wire  NAND;
 	wire  XOR;
 	wire  XNOR;
 
@@ -25,19 +23,13 @@ initial
 
 		entrada = 0;
     
-    
-
-		for(integer i = 0; i < 4; i++) begin
+		for(integer i = 0; i < 10; i++) begin
 			#2
 			entrada = i;
 		end
     #4
 	$finish;
- 	 
    end
-
  
-  
-  
 endmodule
     

@@ -1,8 +1,7 @@
 
-`timescale 1s/10ns
+`timescale 1ns/1ps
 
 module register_file_tb;
-
 
     //Creación de regs y wires
 	reg  reseteate;
@@ -23,30 +22,24 @@ initial
     $dumpfile("register_file_tb.vcd");
     $dumpvars (1, register_file_tb);
 
-
-
-		reseteate = 0;
+		reseteate = 1;
 		reloj_cucu = 0;
 		rs_addr = 0;
 		rt_addr = 0;
 		rd_addr = 0;
 		rd_w_data = 0;
     #3
-	reseteate = 1;
+	reseteate = 0;
 		for(integer i = 0; i < 10; i++) begin
 			#2
-			rs_addr = 9-i;
-			rt_addr = 9-i;
-			rd_addr = 9-i;
-			rd_w_data = 9-i;
+			rs_addr = i;
+			rt_addr = i;
+			rd_addr = i;
+			rd_w_data = i;
 		end
     #4
 	$finish;
- 	 
    end
-
- always forever #1 reloj_cucu = ~reloj_cucu;
-  
-  
+ always forever #0.5 reloj_cucu = ~reloj_cucu;
 endmodule
     

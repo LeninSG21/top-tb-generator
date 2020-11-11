@@ -62,6 +62,7 @@ def printHelp():
     -t --> Override default timescale of 1ns/1ps
     -s --> Override default reset name (rst) and active high
     -c --> Override default clock name (clk)
+    -f --> Override default number of iterations (10)
 
     With no option, the user will be prompted to select the value to assign for each variable
     

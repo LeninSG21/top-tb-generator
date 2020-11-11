@@ -5,9 +5,7 @@ from strFuncs import *
 from displayMenu import *
 
 # Global regex and variables
-re_comments = r'\/\/.*'
-re_multiline_comm = r'\/\*.*\*\/'
-re_com = r'\/\/.*|\/\*(.|\s)*\*\/'
+re_com = r'\/\/[^\n]*|\/\*((?!\*\/).)*\*\/'
 
 re_module_name = r'module\s+([_a-zA-Z]\w*)'
 
@@ -42,10 +40,13 @@ inout_dicc = {}
 
 if __name__ == "__main__":
 
-    override = False
+    # Override definition
+    fOverride = False
     scaleOverride = False
     clkOverride = False
     rstOverride = False
+    forOverride = False
+
     # Read args
     if len(sys.argv) <= 1:
         print("Missing arguments!")
@@ -64,19 +65,22 @@ if __name__ == "__main__":
                 for j in range(1, len(sys.argv[i])):
                     if sys.argv[i][j] == 'r':
                         funcOverride = 'random'
-                        override = True
+                        fOverride = True
                     elif sys.argv[i][j] == 'a':
                         funcOverride = 'up'
-                        override = True
+                        fOverride = True
                     elif sys.argv[i][j] == 'd':
                         funcOverride = 'down'
-                        override = True
+                        fOverride = True
                     elif sys.argv[i][j] == 't':
                         scaleOverride = True
                     elif sys.argv[i][j] == 'c':
                         clkOverride = True
                     elif sys.argv[i][j] == 's':
                         rstOverride = True
+                    elif sys.argv[i][j] == 'f':
+                        forOverride = True
+
             else:
                 inputFile = sys.argv[i]
 
@@ -96,11 +100,8 @@ if __name__ == "__main__":
     if rstOverride:
         rst = getRst()
 
-    # print(textC)
-    text = re.sub(re_comments, "", textC)
-    # print(text)
-    text = re.sub(re_multiline_comm, "", text, flags=re.DOTALL)
-    # print(text)
+    # Remove comments from the file
+    text = re.sub(re_com, "", textC, flags=re.DOTALL)
 
     # Get the module name
     moduleName = re.findall(re_module_name, text)[0]
@@ -109,7 +110,6 @@ if __name__ == "__main__":
     # Get all the inputs and outputs in the text
     inout_list = re.findall(re_inout, text)
 
-    # print(params_list)
     # Give propper format to parameters within the testbench
     # Iterate over parameters
     paramsStr = ""
@@ -143,7 +143,7 @@ if __name__ == "__main__":
             # Save the tuple in the appropriate dictionary
             if(m[0] == "input"):
                 if varTuple[0] != clk and varTuple[0] != rst[0]:
-                    if override:
+                    if fOverride:
                         varTuple[3] = funcOverride
                     else:
                         varTuple[3] = displayMenu(varTuple)
@@ -154,7 +154,9 @@ if __name__ == "__main__":
                 inout_dicc[varTuple[0]] = varTuple
 
     # User type in iterator for simulation values
-    forIt = selectForIterations()
+    forIt = 10
+    if forOverride:
+        forIt = selectForIterations()
 
     # User type in the timescale for the testbench
     scale = "1ns/1ps"

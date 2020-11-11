@@ -64,7 +64,6 @@ def getTBString(moduleName, paramsStr, regStr, wireStr, hasClk, hasRst, varInit,
 
 module {moduleName}_tb;
 {paramsStr}
-
     //Creación de regs y wires
 {regStr}
 {wireStr}
@@ -75,18 +74,12 @@ initial
   begin
     $dumpfile("{moduleName}_tb.vcd");
     $dumpvars (1, {moduleName}_tb);
-
-
 {varInit}
     {rstOff if hasRst else ""}
 {mainSequence}
     #4
 	$finish;
- 	 
    end
-
  {f"always forever #0.5 {clk} = ~{clk};" if hasClk else ""}
-  
-  
 endmodule
     """
