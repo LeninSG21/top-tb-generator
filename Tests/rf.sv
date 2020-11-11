@@ -1,6 +1,6 @@
 module register_file (
-        input logic         reseteate,
-        input logic         reloj_cucu,
+        input logic         rst,
+        input logic         clk,
         input logic   [4:0] rs_addr,
         input logic   [4:0] rt_addr,
         input logic   [4:0] rd_addr,

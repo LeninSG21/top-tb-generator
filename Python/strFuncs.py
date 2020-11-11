@@ -1,6 +1,10 @@
+from random import randint
+
 # var_struct --> (name, size, type, funcType)
 
 # Function to generate all (regs) inputs and/or inouts within the testbench
+
+
 def generateInputTb(input_dicc, inout_dicc):
     s = ""
     for i in input_dicc.values():
@@ -23,19 +27,19 @@ def generateOutputTb(output_dicc):
 
 def generateMainSequence(input_dicc, forIt, clk, rst):
     exists = False
-    s = "\t\tfor(integer i = 0; i < %d; i++) begin\n\t\t\t#2" % forIt
+    s = "\tfor(integer i = 0; i < %d; i++) begin\n\t\t#2" % forIt
     for varTuple in input_dicc.values():
         if varTuple[0] != clk and varTuple[0] != rst[0]:
             exists = True
             # busSize = int(varTuple[1].split(":")[0][1:]) + \
             #     1 if varTuple[1].strip() != "" else 1
             if varTuple[3] == 'random':
-                s += f"\n\t\t\t{varTuple[0]} = $urandom();"
+                s += f"\n\t\t{varTuple[0]} = $urandom({randint(1,100000)});"
             elif varTuple[3] == 'up':
-                s += f"\n\t\t\t{varTuple[0]} = i;"
+                s += f"\n\t\t{varTuple[0]} = i;"
             elif varTuple[3] == "down":
-                s += f"\n\t\t\t{varTuple[0]} = {forIt-1}-i;"
-    s += "\n\t\tend"
+                s += f"\n\t\t{varTuple[0]} = {forIt-1}-i;"
+    s += "\n\tend"
     return s if exists else ""
 
 # Function to initialize input variables within the testbench
@@ -44,7 +48,7 @@ def generateMainSequence(input_dicc, forIt, clk, rst):
 def variableInit(input_dicc, clk, rst):
     s = ""
     for varTuple in input_dicc.values():
-        s += f"\n\t\t{varTuple[0]}"
+        s += f"\n\t{varTuple[0]}"
         if(varTuple[0] == rst[0]):
             s += " = 1;" if rst[1] else " = 0;"
         else:
@@ -54,12 +58,14 @@ def variableInit(input_dicc, clk, rst):
 # Function to create the Verilog testbench template with module, parameters (if so), inputs/outputs variables, initialization and stimulus
 
 
-def getTBString(moduleName, paramsStr, regStr, wireStr, hasClk, hasRst, varInit, mainSequence, scale, clk, rst):
+def getTBString(date_time, moduleName, paramsStr, regStr, wireStr, hasClk, hasRst, varInit, mainSequence, scale, clk, rst):
 
     off = "0" if rst[1] else "1"
     rstOff = f"#3\n\t{rst[0]} = {off};"
 
-    return f"""
+    return f"""// Create Date:  {date_time}
+// Project Name: {moduleName}
+
 `timescale {scale}
 
 module {moduleName}_tb;

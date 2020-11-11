@@ -23,9 +23,9 @@ initial
 
 		entrada = 0;
     
-		for(integer i = 0; i < 10; i++) begin
+		for(integer i = 0; i < 4; i++) begin
 			#2
-			entrada = i;
+			entrada = $urandom(32705);
 		end
     #4
 	$finish;

@@ -3,6 +3,12 @@ import sys
 import re
 from strFuncs import *
 from displayMenu import *
+import datetime
+import socket
+import os
+#
+current_time = datetime.datetime.now()
+date_time = current_time.strftime("%m/%d/%Y, %H:%M:%S")
 
 # Global regex and variables
 re_com = r'\/\/[^\n]*|\/\*((?!\*\/).)*\*\/'
@@ -41,6 +47,7 @@ inout_dicc = {}
 if __name__ == "__main__":
 
     # Override definition
+    Find_Path = sys.path[0]
     fOverride = False
     scaleOverride = False
     clkOverride = False
@@ -80,7 +87,6 @@ if __name__ == "__main__":
                         rstOverride = True
                     elif sys.argv[i][j] == 'f':
                         forOverride = True
-
             else:
                 inputFile = sys.argv[i]
 
@@ -174,7 +180,7 @@ if __name__ == "__main__":
     tbName = inputFile[0:len(inputFile)-3]+"_tb.sv"
     tb = open(tbName, 'w', encoding='utf8')
     # Write the file with the string formatted appropriately
-    tb.write(getTBString(moduleName, paramsStr, regStr,
+    tb.write(getTBString(date_time, moduleName, paramsStr, regStr,
                          wireStr, hasClk, hasRst, varInit, mainSequence, scale, clk, rst))
     # Close the file
     tb.close()

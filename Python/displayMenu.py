@@ -64,7 +64,9 @@ def printHelp():
     -c --> Override default clock name (clk)
     -f --> Override default number of iterations (10)
 
-    With no option, the user will be prompted to select the value to assign for each variable
+    With no option, the user will be prompted to select the value to assign for each variable, the loop iterations 
+    will be set to 10, the clock signal is expected to be named "clk" and the reset signal is expected to be "rst"
+    and active high, and the timescale is set to 1ns/1ps.
     
     """)
     return
