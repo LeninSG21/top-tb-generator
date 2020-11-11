@@ -36,13 +36,14 @@ int forIt = 10;
 bool hasClk = false;
 bool hasRst = false;
 
+
 map<string, var_struct> input_map;
 map<string, var_struct> output_map;
 map<string, var_struct> inout_map;
 
 int main(int argc, char *argv[])
 {
-    /*
+    
     if (argc < 2)
     {
         cout << "Missing input arguments!" << endl;
@@ -52,6 +53,9 @@ int main(int argc, char *argv[])
     fstream file;
     string word, filename;
 
+    string text = "";
+
+
     // filename of the file
     filename = argv[1];
     // opening file
@@ -60,11 +64,13 @@ int main(int argc, char *argv[])
     while (getline(file, word)) //(file >> word)
     {
         // displaying content
-        cout << word << endl;
+        //cout << word << endl;
+        text += word + "\n";
     }
-*/
 
-    string text = "module register_file #(parameter W = 32)(input rst, clk, reg_write, input [4:0] rs_addr,rt_addr, rd_addr, input logic  [W-1:0] rd_w_data, output logic [31:0] rs_data, rt_data);";
+    //return 0;
+
+    //string text = "module register_file #(parameter W = 32)(input rst, clk, reg_write, input [4:0] rs_addr,rt_addr, rd_addr, input logic  [W-1:0] rd_w_data, output logic [31:0] rs_data, rt_data);";
     // Get the module name
     string moduleName = "";
     if (regex_search(text, m, re_module))
@@ -90,6 +96,7 @@ int main(int argc, char *argv[])
     {
 
         string vars = m[5];
+        vars += ",";
         string varName = "";
         for (char c : vars)
         {
@@ -121,26 +128,7 @@ int main(int argc, char *argv[])
             else if (c != ' ')
                 varName += c;
         }
-        struct var_struct x;
-        x.name = varName;
-        x.size = m[4];
-        x.type = m[3];
 
-        if (!hasClk)
-            hasClk = varName == "clk";
-        if (!hasRst)
-            hasRst = varName == "rst";
-
-        if (m[1] == "input")
-        {
-            if (varName != "clk" && varName != "rst")
-                displayMenu(&x);
-            input_map[varName] = x;
-        }
-        else if (m[1] == "output")
-            output_map[varName] = x;
-        else
-            inout_map[varName] = x;
         ioi = m.suffix().str();
     }
     selectForIterations();

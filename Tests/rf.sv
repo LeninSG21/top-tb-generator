@@ -2,13 +2,14 @@ module register_file #(
   parameter ADDR = 5,
   parameter BUS_W = 32
 )(
-        input         reset,
-        input         reloj,
+        input         rst,
+        input         clk,
+        input         r_write,
         input   [ADDR-1:0] rs_addr,
         input   [ADDR-1:0] rt_addr,
         input   [ADDR-1:0] rd_addr,
         input  [BUS_W - 1:0] rd_w_data,
-        input         reg_write,
+        
         output [BUS_W - 1:0] rs_data,
         output [BUS_W - 1:0] rt_data
     );
