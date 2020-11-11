@@ -25,6 +25,8 @@ struct rst_struct
 
 /********** FUNCTIONS *************/
 
+void readConfig(string config_name);
+
 //display
 void getClk();
 void getRst();
@@ -72,10 +74,12 @@ bool scaleOverride = false;
 bool clkOverride = false;
 bool rstOverride = false;
 bool forOverride = false;
+bool hasConfig = false;
 
 int main(int argc, char *argv[])
 {
     string filename;
+    string config = "";
 
     if (argc <= 1)
     {
@@ -93,7 +97,8 @@ int main(int argc, char *argv[])
     }
     else
     {
-        for(uint16_t i = 1; i < argc; i++)
+        filename = argv[1];
+        for(uint16_t i = 2; i < argc; i++)
         {
             if(argv[i][0] == '-')
             {
@@ -139,7 +144,8 @@ int main(int argc, char *argv[])
             }
             else
             {
-               filename = argv[i];
+               config = argv[i];
+               hasConfig = true;
             }
             
         }
@@ -162,15 +168,23 @@ int main(int argc, char *argv[])
     
     file.close();
 
+    
+    if(hasConfig)
+        readConfig(config);
+
     // Welcome message
     cout << "Welcome to the testbench generator!\n" << endl;
 
-    //Clk name
-    if (clkOverride)
-        getClk();
+    if(!hasConfig)
+    {
+        //Clk name
+        if (clkOverride)
+            getClk();
 
-    if (rstOverride)
-        getRst();
+        if (rstOverride)
+            getRst();
+    }
+    
 
     
     // Get the module name
@@ -213,10 +227,12 @@ int main(int argc, char *argv[])
                 if (m[1] == "input")
                 {
                     if (varName != clk && varName != rst.name)
+                        
                         if(fOverride)
                             x.funcType = funcOverride;
                         else
                             displayMenu(&x);
+                        
                     input_map[varName] = x;
                 }
                 else if (m[1] == "output")
@@ -233,13 +249,17 @@ int main(int argc, char *argv[])
         ioi = m.suffix().str();
     }
 
-    // User type in iterator for simulation values
-    if (forOverride)
-        selectForIterations();
+    if(!hasConfig)
+    {
+        // User type in iterator for simulation values
+        if (forOverride)
+            selectForIterations();
 
-    // User type in the timescale for the testbench
-    if (scaleOverride)
-        timescale();
+        // User type in the timescale for the testbench
+        if (scaleOverride)
+            timescale();
+    }
+    
 
 
     initIn = generateInputTb();
@@ -260,13 +280,71 @@ int main(int argc, char *argv[])
     ofstream test(testname.c_str());
     test << getTBStr() << endl;
     test.close();
-
     cout << "Done" << endl;
     return 0;
 }
 
 
 /*********** FUNCTIONS *********************/
+
+//Config
+
+void readConfig(string config_name)
+{
+    fstream file;
+    string line;
+    // opening file
+    file.open(config_name.c_str());
+    // extracting words from the file
+
+    string FLAG = "";
+    string value = "";
+    bool flag_ready;
+    while (getline(file, line)) //(file >> word)
+    {   
+        FLAG = "";
+        value = "";
+        flag_ready = false;
+        for(char c: line)
+        {
+            if(!flag_ready)
+            {
+                if(c!='=')
+                    FLAG+=c;
+                else
+                    flag_ready = true;
+            }
+            else{
+                if(c != 0)
+                    value += c;
+            }
+        }
+
+        if(FLAG == "RST")
+            rst.name = value;
+        else if(FLAG=="ACTIVE_HIGH")
+            rst.activeHigh = value == "1";
+        else if(FLAG=="CLK")
+            clk = value;
+        else if(FLAG=="FOR_IT")
+            forIt = stoi(value);
+        else if(FLAG == "SCALE")
+            scale = value;
+        else if(FLAG == "FUNC")
+        {
+            fOverride = true;
+            if(value == "r")
+                funcOverride = "random";
+            else if(value =="a")
+                funcOverride = "up";
+            else
+                funcOverride = "down";
+        }
+    
+    }
+    
+    file.close();
+}
 
 //Get clock signal function
 
@@ -336,7 +414,7 @@ void selectForIterations()
 //Help menu function
 void printHelp()
 {
-    cout << "\n\n\t./tb-generator [OPTIONS] [FILENAME]" << endl
+    cout << "\n\n\t./tb-generator [FILENAME] ([OPTIONS] | [CONFIG]) " << endl
         <<"\nOptions:\n" << endl
         << "-r --> All variables are assigned a random number $urandom() in every iteration" << endl
         << "-a --> Variables are assigned a number that increases by 1 with each iteration"<<endl
@@ -345,6 +423,7 @@ void printHelp()
         <<"-s --> Override default reset name (rst) and active high"<<endl
         <<"-c --> Override default clock name (clk)"<<endl
         <<"-f --> Override default number of iterations (10)"<<endl
+        <<"CONFIG is the path to a configuration fila"<<endl
         << "With no option, the user will be prompted to select the value to assign for each variable, the loop iterations"
         <<"\nwill be set to 10, the clock signal is expected to be named \"clk\" and the reset signal is expected to be \"rst\""
         << "\nand active high, and the timescale is set to 1ns/1ps.\n"<<endl;

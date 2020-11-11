@@ -1,17 +1,17 @@
 // Project Name: register_file
 
-`timescale 1ns/1ps
+`timescale 10ns/1ps
 
 module register_file_tb;
 
 	parameter ADDR = 5;
 	parameter BUS_W = 32;
-	reg           clk;
 	reg           r_write;
 	reg    [ADDR-1:0]  rd_addr;
 	reg   [BUS_W - 1:0]  rd_w_data;
+	reg           reloj_cucu;
+	reg           reset;
 	reg    [ADDR-1:0]  rs_addr;
-	reg           rst;
 	reg    [ADDR-1:0]  rt_addr;
 
 	wire  [BUS_W - 1:0]  rs_data;
@@ -22,16 +22,16 @@ module register_file_tb;
 		$dumpfile("register_file_tb.vcd");
 		$dumpvars (1, register_file_tb);
 	
-		clk = 0;
 		r_write = 0;
 		rd_addr = 0;
 		rd_w_data = 0;
+		reloj_cucu = 0;
+		reset = 0;
 		rs_addr = 0;
-		rst = 1;
 		rt_addr = 0;
 		#3
-		rst = 0;
-		for(integer i = 0; i < 10; i++) begin 
+		reset = 1;
+		for(integer i = 0; i < 256; i++) begin 
 			#2
 			r_write = i;
 			rd_addr = i;
@@ -42,5 +42,5 @@ module register_file_tb;
 		#4
 		$finish;
 	end
-	always forever #0.5 clk = ~clk;
+	always forever #0.5 reloj_cucu = ~reloj_cucu;
 endmodule

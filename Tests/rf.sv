@@ -2,8 +2,8 @@ module register_file #(
   parameter ADDR = 5,
   parameter BUS_W = 32
 )(
-        input         rst,
-        input         clk,
+        input         reset,
+        input         reloj_cucu,
         input         r_write,
         input   [ADDR-1:0] rs_addr,
         input   [ADDR-1:0] rt_addr,
