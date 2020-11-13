@@ -3,12 +3,13 @@ module register_file #(
   parameter BUS_W = 32
 )(
         input         reset,
-        input         reloj,
+        input         reloj_cucu,
+        input         r_write,
         input   [ADDR-1:0] rs_addr,
         input   [ADDR-1:0] rt_addr,
         input   [ADDR-1:0] rd_addr,
         input  [BUS_W - 1:0] rd_w_data,
-        input         reg_write,
+        
         output [BUS_W - 1:0] rs_data,
         output [BUS_W - 1:0] rt_data
     );
@@ -17,7 +18,7 @@ module register_file #(
   
     integer i;
 
-    always_ff @(posedge reloj or posedge reset)
+    always_ff @(posedge clk or posedge rst)
         begin
             if(rst)
                 for(i = 0; i <= 31; i = i+1)
