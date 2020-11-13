@@ -1,5 +1,5 @@
 module register_file #(
-  parameter ADDR = 5,
+  parameter ADDR = 3'h5,
   parameter BUS_W = 32
 )(
         input         reset,

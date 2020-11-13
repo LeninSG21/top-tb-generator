@@ -1,11 +1,11 @@
-// Create Date:  11/11/2020, 11:10:26
+// Create Date:  11/13/2020, 16:10:01
 // Project Name: register_file
 
-`timescale 100ns/1ps
+`timescale 1ns/1ps
 
 module register_file_tb;
 
-	parameter ADDR = 5;
+	parameter ADDR = 3'h5;
 	parameter BUS_W = 32;
     //Creación de regs y wires
 	reg  reset;
@@ -32,18 +32,19 @@ initial
 	rt_addr = 0;
 	rd_addr = 0;
 	rd_w_data = 0;
-    #3
-	reset = 1;
-	for(integer i = 0; i < 32; i++) begin
+    
+	for(integer i = 0; i < 10; i++) begin
 		#2
-		rs_addr = $urandom(14911);
-		rt_addr = $urandom(30397);
-		rd_addr = $urandom(81269);
-		rd_w_data = 31-i;
+		reset = $urandom(63097);
+		reloj = $urandom(64344);
+		rs_addr = $urandom(80374);
+		rt_addr = $urandom(82866);
+		rd_addr = $urandom(65757);
+		rd_w_data = $urandom(50567);
 	end
     #4
 	$finish;
    end
- always forever #0.5 reloj = ~reloj;
+ 
 endmodule
     
