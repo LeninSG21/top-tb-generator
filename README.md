@@ -207,3 +207,7 @@ For example, with no flags, the user will be prompted to select the stimulus for
 If the user selects only the -r, -d, or -a flags, it will not have to input anything for the testbench to work.
 
 Finally, if the user provides all the flags except for the stimulus ones (r, a, and d), it will have to input manually each and every override. This is true for the Python script and C++ executable. The case of the C++ code with config file solves the need of selecting the overrides manually every time the code is executed, but this is explained more thoroughly in the [CPP_Config](https://github.com/LeninSG21/top-tb-generator/tree/main/CPP_Config) documentation.
+
+### Testbench file
+
+Finally, the full testbench is written into a file with the same name as the input file, with a **\_tb** added after the name. It is saved in the same folder as the input file.
